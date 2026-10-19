@@ -93,4 +93,119 @@ HEALTHCHECK --interval=25s --timeout=3s --start-period=5s --retries=3 \
 
 Ссылка на Docker Hub: https://hub.docker.com/r/slava17recr/image-lab/tags
 
-Ссылка на проект: https://github.com/SLava17-52/dockerlab2
+# Правки:
+
+1) Добавлены все недостоющие файлы в одну директорию 
+
+2) Подтверждения работы контейнера с --read-only
+
+Команда запуска в режиме только для чтения 
+
+```
+docker run -d --rm --read-only --tmpfs /tmp --tmpfs /run -p 8080:8000 slava17recr/image-lab:cb99727b
+
+```
+
+Вывод команды проверки логов/статуса
+
+```
+curl http://localhost:8080/health
+```
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {"status":"ok","uptime":26.0}
+                    
+RawContent        : HTTP/1.1 200 OK
+                    Connection: close
+                    Content-Length: 30
+                    Content-Type: application/json
+                    Date: Mon, 19 Oct 2026 19:01:31 GMT
+                    Server: Werkzeug/3.1.9 Python/3.11.17
+                    
+                    {"status":"ok","uptime":26.0}
+                    
+Forms             : {}
+Headers           : {[Connection, close], [Content-Length, 30], [Content-Type, application/json], [Date, Mon, 19 Oct 2026 19:01:31 GMT]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 30
+
+3) Запускаем контейнер в интерактивном режиме командой
+
+```
+docker run --rm --read-only --tmpfs /tmp --tmpfs /run -p 8080:8000 slava17recr/image-lab:cb99727b
+```
+Логи контейнера
+
+127.0.0.1 - - [19/Oct/2026 19:10:21] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 19:10:46] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [19/Oct/2026 19:11:11] "GET /health HTTP/1.1" 200 -
+
+Во втором окне PowerShell останавливаем контейнер командой:
+
+```
+docker stop d22e66eac54ae63c8e75addad4f823652dff3acf4cfe9d49c5ed1bd99cf7b6b7
+```
+В первом окне где выходили логи выходит сообщение 
+
+Shutting down...
+
+Обработчик сигналов перехватил SIGTERM и завершил работу за доли секунды.
+
+4) Итоговый размер образа 
+
+Используем команду:
+
+```
+docker images
+```
+
+Вывод образа:
+
+IMAGE                             ID             DISK USAGE   CONTENT SIZE   EXTRA
+slava17recr/image-lab2:cb99727b   2164054edfa2        137MB         32.4MB 
+
+5) Исправил опечатку в Readme файле настройки HEALTHCHECK 
+
+Было: HEALTHCHECK --interval=25s --timeout=3s --start-period=5s --retries=5
+
+Стало: HEALTHCHECK --interval=25s --timeout=3s --start-period=5s --retries=3
+
+6) Файл .dockerignore сделан
+
+Объяснение назначений пакетов:
+
+build-base: Базовый пакет в Alpine Linux, содержащий стандартные инструменты компиляции, необходимые для сборки Python-пакетов, содержащих нативные расширения на C.
+
+libffi-dev: Заголовочные файлы и библиотеки для Foreign Function Interface (FFI) библиотеки, которые требуются для компиляции Python-модулей 
+
+musl-dev: Разработческий пакет стандартной библиотеки C, используемой в Alpine Linux по умолчанию. Необходим для корректной сборки и линковки бинарных зависимостей Python под Alpine.
+
+Динамическое изменение ROCKET_SIZE без пересборки
+
+Проверяем переменную внутри запущенного контейнера
+
+Запускаем контейнер в фоне с нужным размером:
+
+```
+docker run -d --name test-rocket -e ROCKET_SIZE=Small slava17recr/image-lab:cb99727b
+```
+Дальше проверяем переменную окружения внутри него командой:
+
+```
+docker exec test-rocket printenv ROCKET_SIZE
+```
+
+Выводит: Small
+
+Останавливаем и удаляем наш контейнер командами:
+
+```
+docker stop test-rocket
+docker rm test-rocket
+```
+И если теперь мы запустим ту же команду, но с -e ROCKET_SIZE=SuperBig, то команда printenv выводит SuperBig
+Это доказывает, что значение меняется на лету без пересборки образа
