@@ -95,23 +95,23 @@ HEALTHCHECK --interval=25s --timeout=3s --start-period=5s --retries=3 \
 
 # Правки:
 
-1) Добавлены все недостоющие файлы в одну директорию 
+# 1) Добавлены все недостоющие файлы в одну директорию 
 
-2) Подтверждения работы контейнера с --read-only
+# 2) Подтверждения работы контейнера с --read-only
 
-Команда запуска в режиме только для чтения 
+Команда запуска в режиме только для чтения:
 
 ```
 docker run -d --rm --read-only --tmpfs /tmp --tmpfs /run -p 8080:8000 slava17recr/image-lab:cb99727b
 
 ```
 
-Вывод команды проверки логов/статуса
+Вывод команды проверки логов/статуса:
 
 ```
 curl http://localhost:8080/health
 ```
-
+```
 StatusCode        : 200
 StatusDescription : OK
 Content           : {"status":"ok","uptime":26.0}
@@ -133,15 +133,19 @@ Links             : {}
 ParsedHtml        : mshtml.HTMLDocumentClass
 RawContentLength  : 30
 
-3) Запускаем контейнер в интерактивном режиме командой
+```
+
+# 3) Запускаем контейнер в интерактивном режиме командой:
 
 ```
 docker run --rm --read-only --tmpfs /tmp --tmpfs /run -p 8080:8000 slava17recr/image-lab:cb99727b
 ```
-Логи контейнера
+Логи контейнера:
 
 127.0.0.1 - - [19/Oct/2026 19:10:21] "GET /health HTTP/1.1" 200 -
+
 127.0.0.1 - - [19/Oct/2026 19:10:46] "GET /health HTTP/1.1" 200 -
+
 127.0.0.1 - - [19/Oct/2026 19:11:11] "GET /health HTTP/1.1" 200 -
 
 Во втором окне PowerShell останавливаем контейнер командой:
@@ -149,13 +153,13 @@ docker run --rm --read-only --tmpfs /tmp --tmpfs /run -p 8080:8000 slava17recr/i
 ```
 docker stop d22e66eac54ae63c8e75addad4f823652dff3acf4cfe9d49c5ed1bd99cf7b6b7
 ```
-В первом окне где выходили логи выходит сообщение 
+В первом окне где выходили логи выходит сообщение:
 
 Shutting down...
 
 Обработчик сигналов перехватил SIGTERM и завершил работу за доли секунды.
 
-4) Итоговый размер образа 
+# 4) Итоговый размер образа 
 
 Используем команду:
 
@@ -164,17 +168,17 @@ docker images
 ```
 
 Вывод образа:
-
+```
 IMAGE                             ID             DISK USAGE   CONTENT SIZE   EXTRA
 slava17recr/image-lab2:cb99727b   2164054edfa2        137MB         32.4MB 
-
-5) Исправил опечатку в Readme файле настройки HEALTHCHECK 
+```
+# 5) Исправил опечатку в Readme файле настройки HEALTHCHECK 
 
 Было: HEALTHCHECK --interval=25s --timeout=3s --start-period=5s --retries=5
 
 Стало: HEALTHCHECK --interval=25s --timeout=3s --start-period=5s --retries=3
 
-6) Файл .dockerignore сделан
+# 6) Файл .dockerignore сделан
 
 Объяснение назначений пакетов:
 
@@ -184,7 +188,7 @@ libffi-dev: Заголовочные файлы и библиотеки для F
 
 musl-dev: Разработческий пакет стандартной библиотеки C, используемой в Alpine Linux по умолчанию. Необходим для корректной сборки и линковки бинарных зависимостей Python под Alpine.
 
-Динамическое изменение ROCKET_SIZE без пересборки
+# Динамическое изменение ROCKET_SIZE без пересборки
 
 Проверяем переменную внутри запущенного контейнера
 
@@ -207,5 +211,5 @@ docker exec test-rocket printenv ROCKET_SIZE
 docker stop test-rocket
 docker rm test-rocket
 ```
-И если теперь мы запустим ту же команду, но с -e ROCKET_SIZE=SuperBig, то команда printenv выводит SuperBig
-Это доказывает, что значение меняется на лету без пересборки образа
+И если теперь мы запустим ту же команду, но с -e ROCKET_SIZE=SuperBig, то команда printenv выводит SuperBig.
+Это доказывает, что значение меняется без пересборки образа
